@@ -9,8 +9,8 @@ on:
 
 env:
   # Use docker.io for Docker Hub if empty
-  REGISTRY: docker.io
-  IMAGE_NAME: zlmediakit/zlmediakit
+  REGISTRY: registry.cn-qingdao.aliyuncs.com
+  IMAGE_NAME: gymdev/zlmediakit
 
 jobs:
   build:
@@ -50,7 +50,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: zlmediakit
-          password: ${{ secrets.DOCKER_IO_SECRET }}
+          password: ${{ secrets.REGISTRY_SECRET }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
