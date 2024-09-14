@@ -18,14 +18,15 @@
 #include <windows.h>
 #endif
 
-#include <csignal>
-#include <stdexcept>
+#include "Poller/EventPoller.h"
 #include "Process.h"
 #include "Util/File.h"
-#include "Util/util.h"
 #include "Util/logger.h"
+#include "Util/util.h"
 #include "Util/uv_errno.h"
-#include "Poller/EventPoller.h"
+#include <csignal>
+#include <iostream>
+#include <stdexcept>
 
 #define STACK_SIZE (8192 * 1024)
 
@@ -82,18 +83,29 @@ static int runChildProcess(string cmd, string log_file) {
     }
     fprintf(stderr, "\r\n\r\n#### pid=%d,cmd=%s #####\r\n\r\n", getpid(), cmd.data());
 
-    auto params = split(cmd, " ");
-    // memory leak in child process, it's ok.
-    char **charpv_params = new char *[params.size() + 1];
-    for (int i = 0; i < (int)params.size(); i++) {
-        std::string &p = params[i];
-        charpv_params[i] = (char *)p.data();
+//    auto params = split(cmd, " ");
+//    // memory leak in child process, it's ok.
+//    char **charpv_params = new char *[params.size() + 1];
+//    for (int i = 0; i < (int)params.size(); i++) {
+//        std::string &p = params[i];
+//        charpv_params[i] = (char *)p.data();
+//    }
+//    // EOF: NULL
+//    charpv_params[params.size()] = NULL;
+//    // TODO: execv or execvp
+//    auto ret = execv(params[0].c_str(), charpv_params);
+//    delete[] charpv_params;
+    FILE* pipe = popen(cmd.c_str(), "r");
+    if (!pipe) {
+        std::cerr << "Popen failed: " << strerror(errno) << std::endl;
+        return -1;
     }
-    // EOF: NULL
-    charpv_params[params.size()] = NULL;
-    // TODO: execv or execvp
-    auto ret = execv(params[0].c_str(), charpv_params);
-    delete[] charpv_params;
+    // 读取命令输出
+    char buffer[1024];
+    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        std::cout << buffer;
+    }
+    int ret = pclose(pipe);
 
     if (ret < 0) {
         fprintf(stderr, "execv process failed:%d(%s)\r\n", get_uv_error(), get_uv_errmsg());
