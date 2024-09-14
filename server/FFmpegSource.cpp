@@ -76,8 +76,7 @@ void FFmpegSource::play(const string &ffmpeg_cmd_key, const string &src_url, con
     GET_CONFIG(string, ffmpeg_cmd_default, FFmpeg::kCmd);
     GET_CONFIG(string, ffmpeg_log, FFmpeg::kLog);
 
-    string cmd = _cmd;
-    if (cmd.empty()) {
+    if (strlen(_cmd) == 0) {
         _src_url = src_url;
         _dst_url = dst_url;
         _ffmpeg_cmd_key = ffmpeg_cmd_key;
@@ -100,7 +99,7 @@ void FFmpegSource::play(const string &ffmpeg_cmd_key, const string &src_url, con
         }
 
         // 命令模版格式化
-        cmd = ffmpeg_cmd;
+        string cmd = ffmpeg_cmd;
         size_t pos = 0;
         for (const auto& value : cmd_format_args) {
             pos = cmd.find("%s", pos);
@@ -113,11 +112,11 @@ void FFmpegSource::play(const string &ffmpeg_cmd_key, const string &src_url, con
         }
 
         // 缓存命令用于重试
-        _cmd = cmd;
+        strcpy(_cmd,cmd.c_str());
     }
     auto log_file = ffmpeg_log.empty() ? "" : File::absolutePath("", ffmpeg_log);
-    _process.run(cmd, log_file);
-    InfoL << cmd;
+    _process.run(_cmd, log_file);
+    InfoL << _cmd;
 
     if (is_local_ip(_media_info.host)) {
         // 推流给自己的，通过判断流是否注册上来判断是否正常

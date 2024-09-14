@@ -93,7 +93,7 @@ private:
     std::string _dst_url;
     std::string _ffmpeg_cmd_key;
     // ffmpeg完整命令
-    std::string _cmd;
+    char _cmd[2048] = { 0 };
     std::function<void()> _onClose;
     toolkit::Ticker _replay_ticker;
 };
