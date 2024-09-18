@@ -50,7 +50,7 @@ static void setupChildProcess() {
 
 /* Start function for cloned child */
 static int runChildProcess(string cmd, string log_file) {
-    setupChildProcess();
+    //setupChildProcess();
 
     if (log_file.empty()) {
         //未指定子进程日志文件时，重定向至/dev/null
